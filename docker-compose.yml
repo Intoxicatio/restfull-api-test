@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # volumes:
+    #   - ./src:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - restfullapitest
+    depends_on:
+      mysql:
+        condition: service_healthy
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: '${MSQL_PASSWORD}'
+      MYSQL_DATABASE: '${MSQL_DATABASE}'
+      MYSQL_USER: '${MSQL_USER}'
+      MYSQL_PASSWORD: '${MSQL_PASSWORD}'
+    ports:
+      - "3636:3306"
+    networks:
+      - restfullapitest
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+networks:
+  restfullapitest: 
+    driver: bridge
